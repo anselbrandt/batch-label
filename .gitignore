@@ -1,0 +1,6 @@
+__pycache__/
+files/
+labeled/
+mono/
+splitwavs/
+*.wav
