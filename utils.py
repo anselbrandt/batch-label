@@ -77,3 +77,20 @@ def transcript_to_srt(transcript):
         for idx, start, end, speaker, speech in transcript
     ]
     return "\n\n".join(lines)
+
+
+def getTextTranscript(filepath):
+    file = open(filepath, encoding="utf-8-sig").read().splitlines()
+
+    lines = [line.rstrip() for line in file if line != ""]
+    return lines
+
+
+def labelTextTranscript(textTranscript, labels):
+    labeled = []
+    for line in textTranscript:
+        if "Speaker 0" in line:
+            labeled.append(line.replace("Speaker 0", labels["Speaker 0"]))
+        if "Speaker 1" in line:
+            labeled.append(line.replace("Speaker 1", labels["Speaker 1"]))
+    return labeled

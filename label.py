@@ -1,6 +1,12 @@
 import os
 
-from utils import getTranscriptFiles, srt_to_transcript, transcript_to_srt
+from utils import (
+    getTranscriptFiles,
+    srt_to_transcript,
+    transcript_to_srt,
+    getTextTranscript,
+    labelTextTranscript,
+)
 
 from speaker_utils import getReferenceLabel, getSpeakerLabels
 
@@ -27,6 +33,13 @@ for filepath, showname, filename in transcriptFiles:
     wavFiles = [os.path.join(showDir, file) for file in os.listdir(showDir)]
     referenceLabel = getReferenceLabel(reference, wavFiles)
     inferredLabels = getSpeakerLabels(referenceLabel, hosts[showname])
+    textFilepath = filepath.replace(".srt", ".txt")
+    textTranscript = getTextTranscript(textFilepath)
+    labeledText = labelTextTranscript(textTranscript, inferredLabels)
+    textOutpath = os.path.join(labeledDir, showname, filename.replace(".srt", ".txt"))
+    t = open(textOutpath, "w")
+    t.write("\n\n".join(labeledText))
+    t.close
     transcript = srt_to_transcript(filepath)
     labeled = [
         (idx, start, end, inferredLabels[speaker], speech)
