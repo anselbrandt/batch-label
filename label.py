@@ -11,7 +11,7 @@ from utils import (
 from speaker_utils import getReferenceLabel, getSpeakerLabels
 
 ROOT = os.getcwd()
-transcriptDir = os.path.join(ROOT, "files")
+transcriptDir = os.path.join(ROOT, "output")
 wavsDir = os.path.join(ROOT, "splitwavs")
 labeledDir = os.path.join(ROOT, "labeled")
 showDirs = os.listdir(transcriptDir)

@@ -1,6 +1,6 @@
 __pycache__/
-files/
+audio/
 labeled/
-mono/
+output/
 splitwavs/
 *.wav
