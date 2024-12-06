@@ -4,3 +4,6 @@ labeled/
 output/
 splitwavs/
 *.wav
+*.pkl
+*.srt
+*.txt

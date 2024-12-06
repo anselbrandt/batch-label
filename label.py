@@ -11,8 +11,10 @@ from utils import (
 
 from speaker_utils import getReferenceLabel, getSpeakerLabels
 
+isCleanAudio = True if os.path.isdir("clean_splitwavs") else False
+
 ROOT = os.getcwd()
-labeledDir = os.path.join(ROOT, "labeled")
+labeledDir = os.path.join(ROOT, "clean_labeled" if isCleanAudio else "labeled")
 os.makedirs(labeledDir, exist_ok=True)
 
 stream_handler = logging.StreamHandler()
@@ -21,11 +23,14 @@ stream_handler.setLevel(logging.INFO)
 logging.basicConfig(
     level=logging.INFO,
     format="%(message)s",
-    handlers=[logging.FileHandler("labeled/labels.txt"), stream_handler],
+    handlers=[
+        logging.FileHandler(os.path.join(labeledDir, "labels.txt")),
+        stream_handler,
+    ],
 )
 
-transcriptDir = os.path.join(ROOT, "output")
-wavsDir = os.path.join(ROOT, "splitwavs")
+transcriptDir = os.path.join(ROOT, "clean_output" if isCleanAudio else "output")
+wavsDir = os.path.join(ROOT, "clean_splitwavs" if isCleanAudio else "splitwavs")
 showDirs = os.listdir(transcriptDir)
 
 for dir in showDirs:
