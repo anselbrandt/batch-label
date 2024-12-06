@@ -1,4 +1,5 @@
 import os
+import logging
 
 from utils import (
     getTranscriptFiles,
@@ -11,9 +12,20 @@ from utils import (
 from speaker_utils import getReferenceLabel, getSpeakerLabels
 
 ROOT = os.getcwd()
+labeledDir = os.path.join(ROOT, "labeled")
+os.makedirs(labeledDir, exist_ok=True)
+
+stream_handler = logging.StreamHandler()
+stream_handler.setLevel(logging.INFO)
+
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(message)s",
+    handlers=[logging.FileHandler("labeled/labels.txt"), stream_handler],
+)
+
 transcriptDir = os.path.join(ROOT, "output")
 wavsDir = os.path.join(ROOT, "splitwavs")
-labeledDir = os.path.join(ROOT, "labeled")
 showDirs = os.listdir(transcriptDir)
 
 for dir in showDirs:
@@ -28,11 +40,14 @@ reference = os.path.join(ROOT, "john.wav")
 transcriptFiles = getTranscriptFiles(transcriptDir)
 
 for filepath, showname, filename in transcriptFiles:
-    episode = filename.split("_-_")[0]
+    episode = filename.split("_-_")[0] if "_-_" in filename else filename.split(".")[0]
     showDir = os.path.join(wavsDir, showname, episode)
     wavFiles = [os.path.join(showDir, file) for file in os.listdir(showDir)]
     referenceLabel = getReferenceLabel(reference, wavFiles)
     inferredLabels = getSpeakerLabels(referenceLabel, hosts[showname])
+    logging.info(
+        f"{showname}|{episode}|{inferredLabels["Speaker 0"]}|{inferredLabels["Speaker 1"]}"
+    )
     textFilepath = filepath.replace(".srt", ".txt")
     textTranscript = getTextTranscript(textFilepath)
     labeledText = labelTextTranscript(textTranscript, inferredLabels)
