@@ -9,7 +9,7 @@ from utils import (
     labelTextTranscript,
 )
 
-from speaker_utils import getReferenceLabel, getSpeakerLabels
+from speaker_utils import getSpeakerLabels
 
 isCleanAudio = True if os.path.isdir("clean_splitwavs") else False
 
@@ -48,21 +48,19 @@ for filepath, showname, filename in transcriptFiles:
     episode = filename.split("_-_")[0] if "_-_" in filename else filename.split(".")[0]
     showDir = os.path.join(wavsDir, showname, episode)
     wavFiles = [os.path.join(showDir, file) for file in os.listdir(showDir)]
-    referenceLabel = getReferenceLabel(reference, wavFiles)
-    inferredLabels = getSpeakerLabels(referenceLabel, hosts[showname])
-    logging.info(
-        f"{showname}|{episode}|{inferredLabels["Speaker 0"]}|{inferredLabels["Speaker 1"]}"
-    )
+    showhosts = hosts[showname]
+    speakerLabels = getSpeakerLabels(reference, wavFiles, showhosts)
+    logging.info(f"{showname}|{episode}|{",".join(list(speakerLabels.values()))}")
     textFilepath = filepath.replace(".srt", ".txt")
     textTranscript = getTextTranscript(textFilepath)
-    labeledText = labelTextTranscript(textTranscript, inferredLabels)
+    labeledText = labelTextTranscript(textTranscript, speakerLabels)
     textOutpath = os.path.join(labeledDir, showname, filename.replace(".srt", ".txt"))
     t = open(textOutpath, "w")
     t.write("\n\n".join(labeledText))
     t.close
     transcript = srt_to_transcript(filepath)
     labeled = [
-        (idx, start, end, inferredLabels[speaker], speech)
+        (idx, start, end, speakerLabels[speaker], speech)
         for idx, start, end, speaker, speech in transcript
     ]
     srt = transcript_to_srt(labeled)

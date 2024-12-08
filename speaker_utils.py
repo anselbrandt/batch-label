@@ -1,6 +1,7 @@
 import nemo.collections.asr as nemo_asr
 import logging
 import random
+import os
 
 logging.getLogger("nemo_logger").setLevel(logging.ERROR)
 
@@ -20,22 +21,25 @@ def reference_likleyhood(reference, samples):
     return results / 10
 
 
-def getReferenceLabel(reference_filepath, sample_filepaths):
-    speaker0 = [file for file in sample_filepaths if "Speaker 0" in file]
-    speaker1 = [file for file in sample_filepaths if "Speaker 1" in file]
-    randomized0 = random.sample(speaker0, len(speaker0))[:10]
-    randomized1 = random.sample(speaker1, len(speaker1))[:10]
-    result0 = reference_likleyhood(reference_filepath, randomized0)
-    result1 = reference_likleyhood(reference_filepath, randomized1)
-    if result0 > result1:
-        return "Speaker 0"
-    else:
-        return "Speaker 1"
+def getSpeakers(wavFilePaths):
+    return list(
+        set(
+            [
+                os.path.basename(filepath).split("_")[4].replace(".wav", "")
+                for filepath in wavFilePaths
+            ]
+        )
+    )
 
 
-def getSpeakerLabels(referenceLabel, speakers):
-    mainSpeaker, secondarySpeaker = speakers
-    if referenceLabel == "Speaker 0":
-        return {"Speaker 0": mainSpeaker, "Speaker 1": secondarySpeaker}
-    else:
-        return {"Speaker 0": secondarySpeaker, "Speaker 1": mainSpeaker}
+def getSpeakerLabels(reference, wavFiles, hosts):
+    primary, secondary = hosts
+    speakers = getSpeakers(wavFiles)
+    speakerNames = {}
+    for speaker in speakers:
+        speakerWavs = [file for file in wavFiles if speaker in file]
+        randomized = random.sample(speakerWavs, len(speakerWavs))[:10]
+        result = reference_likleyhood(reference, randomized)
+        speakerName = primary if result > 0.5 else secondary
+        speakerNames[speaker] = speakerName
+    return speakerNames

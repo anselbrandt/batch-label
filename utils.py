@@ -79,8 +79,7 @@ def getTextTranscript(filepath):
 def labelTextTranscript(textTranscript, labels):
     labeled = []
     for line in textTranscript:
-        if "Speaker 0" in line:
-            labeled.append(line.replace("Speaker 0", labels["Speaker 0"]))
-        if "Speaker 1" in line:
-            labeled.append(line.replace("Speaker 1", labels["Speaker 1"]))
+        speaker = line.split(":")[0]
+        if not line.split(":")[1].isspace() and len(line.split(":")) > 1:
+            labeled.append(line.replace(speaker, labels[speaker]))
     return labeled
